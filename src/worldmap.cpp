@@ -971,14 +971,7 @@ WorldMap::draw(const Point& offset)
 void
 WorldMap::draw_status()
 {
-  int xdiv;
-  
-#ifdef RES320X240
-  xdiv=2;
-#else
-  xdiv=1;
-#endif
-
+  int xdiv = 1;
   char str[80];
   sprintf(str, "%d", player_status.score);
   white_text->draw("SCORE", 0, 0);
@@ -992,13 +985,9 @@ WorldMap::draw_status()
   if (player_status.lives >= 5)
     {
       sprintf(str, "%dx", player_status.lives);
-#ifdef RES320X240
-      gold_text->draw_align(str, (int)(617)/xdiv-5, 0, A_RIGHT, A_TOP);
-      tux_life->draw((int)((565-12+(18*3))), 0);
-#else
       gold_text->draw_align(str, (int)(617), 0, A_RIGHT, A_TOP);
       tux_life->draw((int)((565+(18*3))), 0);
-#endif
+
     }
   else
     {
@@ -1015,11 +1004,9 @@ WorldMap::draw_status()
             {
               if(!i->name.empty())
                 {
-#ifndef RES320X240
+
               white_text->draw_align(i->title.c_str(), SCREEN_W/2, SCREEN_H,  A_HMIDDLE, A_BOTTOM);
-#else
-              white_text->draw_align(i->title.c_str(), SCREEN_W/2, 470,  A_HMIDDLE, A_BOTTOM);
-#endif
+
                 }
 				  else if (i->teleport_dest_x != -1) {
 				  	if(!i->teleport_message.empty())
@@ -1073,16 +1060,7 @@ WorldMap::display()
       Point tux_pos = tux->get_pos();
       if (1)
         {
-#ifndef GP2X
-          offset.x = -tux_pos.x + SCREEN_W/2;
-          offset.y = -tux_pos.y + SCREEN_H/2;
 
-          if (offset.x > 0) offset.x = 0;
-          if (offset.y > 0) offset.y = 0;
-
-          if (offset.x < SCREEN_W - width*32) offset.x = SCREEN_W - width*32;
-          if (offset.y < SCREEN_H - height*32) offset.y = SCREEN_H - height*32;
-#else
           offset.x = -tux_pos.x + 640/2;
           offset.y = -tux_pos.y + 480/2;
 
@@ -1091,7 +1069,7 @@ WorldMap::display()
 
           if (offset.x < 640 - width*32) offset.x = 640 - width*32;
           if (offset.y < 480 - height*32) offset.y = 480 - height*32;
-#endif
+
         } 
 
       draw(offset);

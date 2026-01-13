@@ -176,48 +176,17 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 }
 
 /* Draw a single pixel on the screen. */
-void drawpixel(int x, int y, Uint32 pixel)
+void drawpixel(int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-#ifndef NOOPENGL
-  if(use_gl)
-    {
-      // Extract RGBA from pixel (assuming screen format)
-      Uint8 r, g, b, a;
-      SDL_GetRGBA(pixel, SDL_GetWindowSurface(window)->format, &r, &g, &b, &a);
-      
-      glColor4ub(r, g, b, a);
-      glBegin(GL_POINTS);
-      glVertex2f(x, y);
-      glEnd();
-    }
-  else
-    {
-#endif
-      // For software rendering, use SDL_RenderDrawPoint
-      // We need to extract color components from the pixel value
-      Uint8 r, g, b, a;
-      SDL_GetRGBA(pixel, SDL_GetWindowSurface(window)->format, &r, &g, &b, &a);
-      
-#ifndef RES320X240
-      SDL_SetRenderDrawColor(renderer, r, g, b, a);
-      SDL_RenderDrawPoint(renderer, x, y);
-#else
-      SDL_SetRenderDrawColor(renderer, r, g, b, a);
-      SDL_RenderDrawPoint(renderer, x/2, y/2);
-#endif
-#ifndef NOOPENGL
-    }
-#endif
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    SDL_RenderDrawPoint(renderer, x, y);
 }
+
 
 void drawline(int x1, int y1, int x2, int y2, int r, int g, int b, int a)
 {
-#ifdef RES320X240
-  x1 = x1/2;
-  x2 = x2/2;
-  y1 = y1/2;
-  y2 = y2/2;
-#endif
+
 
 #ifndef NOOPENGL
   if(use_gl)
@@ -259,12 +228,6 @@ void fillrect(float x, float y, float w, float h, int r, int g, int b, int a)
       h = -h;
     }
 
-#ifdef RES320X240
-  x = x/2;
-  y = y/2;
-  w = w/2;
-  h = h/2;
-#endif
 
 #ifndef NOOPENGL
   if(use_gl)

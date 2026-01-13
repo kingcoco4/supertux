@@ -323,11 +323,9 @@ World::action(double frame_ratio)
 
 // the space that it takes for the screen to start scrolling, regarding
 // screen bounds (in pixels)
-#ifndef RES320X240
+
 #define X_SPACE (400-16)
-#else
-#define X_SPACE (80-16)
-#endif
+
 
 // the time it takes to move the camera (in ms)
 #define CHANGE_DIR_SCROLL_SPEED 2000
@@ -404,13 +402,10 @@ void World::scrolling(double frame_ratio)
   // this code prevent the screen to scroll before the start or after the level's end
   if(scroll_x < 0)
     scroll_x = 0;
-#ifndef RES320X240
+
   if(scroll_x > level->width * 32 - SCREEN_W)
     scroll_x = level->width * 32 - SCREEN_W;
-#else
-  if(scroll_x > level->width * 32 - 640)
-    scroll_x = level->width * 32 - 640;
-#endif
+
 }
 
 void
@@ -502,9 +497,6 @@ World::collision_handler()
 void
 World::add_score(float x, float y, int s)
 {
-#ifdef RES320X240
-  x=x/2;
-#endif
 
   player_status.score += s;
 

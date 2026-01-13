@@ -510,11 +510,8 @@ Menu::draw_item(int index, // Position of the current item in the menu
   MenuItem& pitem = item[index];
 
   
-#ifndef RES320X240
+
   int font_width  = 16;
-#else
-  int font_width  = 16/2;
-#endif
   
   int effect_offset = 0;
   {
@@ -555,11 +552,9 @@ Menu::draw_item(int index, // Position of the current item in the menu
 
   case MN_HL:
     {
-#ifndef RES320X240
+
       int x = pos_x - menu_width/2;
-#else
-      int x = pos_x - menu_width/4;
-#endif
+
       int y = y_pos - 12 - effect_offset;
       /* Draw a horizontal line with a little 3d effect */
       fillrect(x, y + 6,
@@ -572,15 +567,11 @@ Menu::draw_item(int index, // Position of the current item in the menu
     }
   case MN_LABEL:
     {
-#ifndef RES320X240
+
       white_big_text->draw_align(pitem.text,
                                  x_pos, y_pos,
                                  A_HMIDDLE, A_VMIDDLE, 2);
-#else
-      white_text->draw_align(pitem.text,
-                                 x_pos, y_pos,
-                                 A_HMIDDLE, A_VMIDDLE, 2);
-#endif
+
       break;
     }
   case MN_TEXTFIELD:
@@ -708,17 +699,12 @@ Menu::draw()
   int menu_width  = get_width();
 
   /* Draw a transparent background */
-#ifndef RES320X240
+
   fillrect(pos_x - menu_width/2,
            pos_y - 24*item.size()/2 - 10,
            menu_width,menu_height + 20,
            150,180,200,125);
-#else
-  fillrect(pos_x - menu_width/4,
-           pos_y - 24*item.size()/2 - 10,
-           menu_width,menu_height + 20,
-           150,180,200,125);
-#endif
+
 
   for(unsigned int i = 0; i < item.size(); ++i)
   {

@@ -107,21 +107,14 @@ Bullet::action(double frame_ratio)
 
   base.ym = base.ym + 0.5 * frame_ratio;
 
-#ifndef RES320X240  
+
   if (base.x < scroll_x ||
       base.x > scroll_x + SCREEN_W ||
       base.y > SCREEN_H ||
       issolid(base.x + 4, base.y + 2) ||
       issolid(base.x, base.y + 2) ||
       life_count <= 0)
-#else
-  if (base.x < scroll_x ||
-      base.x > scroll_x + 640 ||
-      base.y > 480 ||
-      issolid(base.x + 4, base.y + 2) ||
-      issolid(base.x, base.y + 2) ||
-      life_count <= 0)
-#endif
+
     {
       remove_me();
     }
@@ -131,13 +124,10 @@ Bullet::action(double frame_ratio)
 void 
 Bullet::draw()
 {
-#ifndef RES320X240
+
   if (base.x >= scroll_x - base.width &&
       base.x <= scroll_x + SCREEN_W)
-#else
-  if (base.x >= scroll_x - base.width &&
-      base.x <= scroll_x + 640)
-#endif
+
     {
       img_bullet->draw(base.x - scroll_x, base.y);
     }
@@ -213,11 +203,9 @@ Upgrade::action(double frame_ratio)
       remove_me();
       return;
   }
-#ifndef RES320X240
+
   if(base.y > SCREEN_H) {
-#else
-  if(base.y > 640) {
-#endif
+
     remove_me();
     return;
   }
@@ -272,11 +260,8 @@ Upgrade::draw()
     {
       /* Rising up... */
 
-#ifndef RES320X240
+
       dest.x = (int)(base.x - scroll_x);
-#else
-      dest.x = (int)(base.x - scroll_x)/2;
-#endif
       dest.y = (int)(base.y + 32 - base.height);
       dest.w = 32;
       dest.h = (int)base.height;

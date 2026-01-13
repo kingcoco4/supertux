@@ -877,13 +877,7 @@ void bumpbrick(float x, float y)
 void
 GameSession::drawstatus()
 {
- int xdiv;
-#ifdef RES320X240
- xdiv=2;
-#else
- xdiv=1;
-#endif
-
+ int xdiv = 1;
   char str[60];
 
   sprintf(str, "%d", player_status.score);
@@ -911,13 +905,8 @@ GameSession::drawstatus()
   if (player_status.lives >= 5)
     {
       sprintf(str, "%dx", player_status.lives);
-#ifdef RES320X240
-      gold_text->draw_align(str, 617/xdiv-5, 20, A_RIGHT, A_TOP);
-      tux_life->draw(565+(18*3)/xdiv+10, 20);
-#else
       gold_text->draw_align(str, 617, 20, A_RIGHT, A_TOP);
       tux_life->draw(565+(18*3), 20);
-#endif
     }
   else
     {

@@ -72,13 +72,9 @@
 #endif
 
 /* Screen properties: */
-#ifndef RES320X240
 #define SCREEN_W 640
 #define SCREEN_H 480
-#else
-#define SCREEN_W 320
-#define SCREEN_H 240
-#endif
+
 
 /* Local function prototypes: */
 void seticon(void);
@@ -607,37 +603,27 @@ void st_general_setup(void)
 
   /* Load global images: */
 
-#ifndef RES320X240
+
   white_text  = new Text(datadir + "/images/status/letters-white.png", TEXT_TEXT, 16,18);
-#else
-  white_text  = new Text(datadir + "/images/status/letters-white-small.png", TEXT_TEXT, 8,9);
-  fadeout();
-#endif
 
 
-#ifndef RES320X240
+
+
   black_text  = new Text(datadir + "/images/status/letters-black.png", TEXT_TEXT, 16,18);
-#else
-  black_text  = new Text(datadir + "/images/status/letters-black-small.png", TEXT_TEXT, 8,9);
-#endif
-#ifndef RES320X240
+
+
   gold_text   = new Text(datadir + "/images/status/letters-gold.png", TEXT_TEXT, 16,18);
-#else
-  gold_text   = new Text(datadir + "/images/status/letters-gold-small.png", TEXT_TEXT, 8,9);
-#endif
+
   silver_text = new Text(datadir + "/images/status/letters-silver.png", TEXT_TEXT, 16,18);
-#ifndef RES320X240
+
   blue_text   = new Text(datadir + "/images/status/letters-blue.png", TEXT_TEXT, 16,18);
-#else
-  blue_text   = new Text(datadir + "/images/status/letters-blue-small.png", TEXT_TEXT, 8,9);
-#endif
+
+
   red_text    = new Text(datadir + "/images/status/letters-red.png", TEXT_TEXT, 16,18);
   green_text  = new Text(datadir + "/images/status/letters-green.png", TEXT_TEXT, 16,18);
-#ifndef RES320X240
+
   white_text  = new Text(datadir + "/images/status/letters-white.png", TEXT_TEXT, 16,18);
-#else
-  white_text = new Text(datadir + "/images/status/letters-white-small.png", TEXT_TEXT, 8,9);
-#endif
+
   white_small_text = new Text(datadir + "/images/status/letters-white-small.png", TEXT_TEXT, 8,9);
   white_big_text   = new Text(datadir + "/images/status/letters-white-big.png", TEXT_TEXT, 20,22);
   yellow_nums = new Text(datadir + "/images/status/numbers.png", TEXT_NUM, 32,32);
@@ -781,6 +767,8 @@ int st_video_setup(void)
     
     // Set logical size for consistent rendering
     SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
+    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+
   }
   
   return 0;

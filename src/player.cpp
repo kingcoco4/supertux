@@ -773,11 +773,7 @@ Player::is_dying()
 
 bool Player::is_dead()
 {
-#ifndef RES320X240
   if(base.y > SCREEN_H || base.x < scroll_x - AUTOSCROLL_DEAD_INTERVAL)  // last condition can happen in auto-scrolling
-#else
-  if(base.y > 640 || base.x < scroll_x - AUTOSCROLL_DEAD_INTERVAL)  // last condition can happen in auto-scrolling
-#endif
     return true;
   else
     return false;
@@ -803,11 +799,8 @@ Player::check_bounds(bool back_scrolling, bool hor_autoscroll)
     }
 
   /* Keep in-bounds, vertically: */
-#ifndef RES320X240
+
   if (base.y > SCREEN_H)
-#else
-  if (base.y > 640)
-#endif
     {
       kill(KILL);
 #ifndef NOSOUND

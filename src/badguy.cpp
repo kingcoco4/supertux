@@ -698,21 +698,13 @@ BadGuy::action(double frame_ratio)
     }
 
   // BadGuy fall below the ground
-#ifndef RES320X240
   if (base.y > SCREEN_H) {
-#else
-  if (base.y > 640) {
-#endif
     remove_me();
     return;
   }
 
   // Once it's on screen, it's activated!
-#ifndef RES320X240
   if (base.x <= scroll_x + SCREEN_W + OFFSCREEN_DISTANCE)
-#else
-  if (base.x <= scroll_x + 640 + OFFSCREEN_DISTANCE)
-#endif
     seen = true;
 
   if(!seen)
@@ -772,11 +764,9 @@ void
 BadGuy::draw()
 {
   // Don't try to draw stuff that is outside of the screen
-#ifndef RES320X240
+
   if(base.x <= scroll_x - base.width || base.x >= scroll_x + SCREEN_W)
-#else
-  if(base.x <= scroll_x - base.width || base.x >= scroll_x + 640)
-#endif
+
     return;
   
   if(sprite_left == 0 || sprite_right == 0)
