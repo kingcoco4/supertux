@@ -323,8 +323,8 @@ Menu::Menu()
   delete_character = 0;
   mn_input_char = '\0';
 
-  pos_x        = screen->w/2;
-  pos_y        = screen->h/2;
+  pos_x = 320;  // Default, can be changed with set_pos()
+  pos_y = 240;
   arrange_left = 0;
   active_item  = 0;
   effect.init(false);
@@ -755,27 +755,27 @@ Menu::isToggled(int id)
 void
 Menu::event(SDL_Event& event)
 {
-  SDLKey key;
+  SDL_Keycode key;
   switch(event.type)
   {
   case SDL_KEYDOWN:
     key = event.key.keysym.sym;
-    SDLMod keymod;
+    SDL_Keymod keymod;
     char ch[2];
     keymod = SDL_GetModState();
     int x,y;
 
     /* If the current unicode character is an ASCII character,
        assign it to ch. */
-    if ( (event.key.keysym.unicode & 0xFF80) == 0 )
-    {
-      ch[0] = event.key.keysym.unicode & 0x7F;
-      ch[1] = '\0';
-    }
-    else
-    {
-      /* An International Character. */
-    }
+    // if ( (event.key.keysym.unicode & 0xFF80) == 0 )
+    // {
+    //   ch[0] = event.key.keysym.unicode & 0x7F;
+    //   ch[1] = '\0';
+    // }
+    // else
+    // {
+    //   /* An International Character. */
+    // }
 
     if(item[active_item].kind == MN_CONTROLFIELD)
     {

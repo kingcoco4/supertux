@@ -123,14 +123,17 @@ class SurfaceSDL : public SurfaceImpl
 {
 public:
   SurfaceSDL(SDL_Surface* surf, int use_alpha);
-  SurfaceSDL(const std::string& file, int use_alpha);  
+  SurfaceSDL(const std::string& file, int use_alpha);
   SurfaceSDL(const std::string& file, int x, int y, int w, int h, int use_alpha);
   virtual ~SurfaceSDL();
 
   int draw(float x, float y, Uint8 alpha, bool update);
   int draw_bg(Uint8 alpha, bool update);
-  int draw_part(float sx, float sy, float x, float y, float w, float h,  Uint8 alpha, bool update);
+  int draw_part(float sx, float sy, float x, float y, float w, float h, Uint8 alpha, bool update);
   int draw_stretched(float x, float y, int w, int h, Uint8 alpha, bool update);
+
+private:
+  SDL_Texture* sdl_texture;  // Add this line
 };
 
 #ifndef NOOPENGL

@@ -20,23 +20,26 @@
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <SDL.h>
-#include <SDL_image.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 #ifndef NOOPENGL
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #endif
 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+
 #ifndef WIN32
 #include <libgen.h>
 #endif
+
 #include <ctype.h>
 
 #include "defines.h"
@@ -51,21 +54,24 @@
 #include "worldmap.h"
 #include "resources.h"
 #include "intro.h"
+
 #ifndef NOSOUND
 #include "music_manager.h"
 #endif
 
 #include "player.h"
 
+#ifndef DATA_PREFIX
+#define DATA_PREFIX "./data/"
+#endif
+
 #ifdef WIN32
 #define mkdir(dir, mode)    mkdir(dir)
-// on win32 we typically don't want LFS paths
 #undef DATA_PREFIX
 #define DATA_PREFIX "./data/"
 #endif
 
 /* Screen properties: */
-/* Don't use this to test for the actual screen sizes. Use screen->w/h instead! */
 #ifndef RES320X240
 #define SCREEN_W 640
 #define SCREEN_H 480
@@ -74,14 +80,11 @@
 #define SCREEN_H 240
 #endif
 
-#ifdef GP2X
-#define DATA_PREFIX "data/"
-#endif
-
 /* Local function prototypes: */
-
 void seticon(void);
 void usage(char * prog, int ret);
+
+
 
 /* Does the given file exist and is it accessible? */
 int faccessible(const char *filename)
@@ -143,10 +146,9 @@ FILE * opendata(const char * rel_filename, const char * mode)
 
   filename = (char *) malloc(sizeof(char) * (strlen(st_dir) +
                                              strlen(rel_filename) + 1));
-
   strcpy(filename, st_dir);
-  /* Open the high score file: */
 
+  /* Open the high score file: */
   strcat(filename, rel_filename);
 
   /* Try opening the file: */
@@ -317,16 +319,7 @@ void st_directory_setup(void)
 {
   const char *home;
   char str[1024];
-  /* Get home directory (from $HOME variable)... if we can't determine it,
-     use the current directory ("."): */
-#if defined(GP2X) && !defined(WIN32)
-  if (getenv("HOME") != NULL)
-    home = getenv("HOME");
-  else
-    home = ".";
-#else
-    home = ".";
-#endif
+  home = ".";
 
   st_dir = (char *) malloc(sizeof(char) * (strlen(home) +
                                            strlen("/.supertux") + 1));
@@ -336,8 +329,7 @@ void st_directory_setup(void)
   /* Remove .supertux config-file from old SuperTux versions */
   if(faccessible(st_dir))
     {
-      remove
-        (st_dir);
+      remove(st_dir);
     }
 
   st_save_dir = (char *) malloc(sizeof(char) * (strlen(st_dir) + strlen("/save") + 1));
@@ -360,7 +352,7 @@ void st_directory_setup(void)
 #ifndef WIN32
       if (readlink("/proc/self/exe", exe_file, PATH_MAX) < 0)
         {
-          puts("Couldn't read /proc/self/exe, using default path: " DATA_PREFIX);
+          puts("Couldn't read /proc/self/exe, using default path.");
           datadir = DATA_PREFIX;
         }
       else
@@ -372,18 +364,17 @@ void st_directory_setup(void)
             {
               datadir = exedir + "../share/supertux"; // SuperTux run from PATH
               if (access(datadir.c_str(), F_OK) != 0) 
-                { // If all fails, fall back to compiled path
-        	  datadir = exedir + "./data"; // SuperTux run with data in same path as executable
-        	    if (access(datadir.c_str(), F_OK) != 0)
-        	    {
-			 // If all fails, fall back to compiled path
-                	datadir = DATA_PREFIX; 
-		    }
+                {
+                  datadir = exedir + "./data"; // SuperTux run with data in same path as executable
+                  if (access(datadir.c_str(), F_OK) != 0)
+                    {
+                      datadir = DATA_PREFIX; 
+                    }
                 }
             }
         }
 #else
-  datadir = DATA_PREFIX;
+      datadir = DATA_PREFIX;
 #endif
     }
   printf("Datadir: %s\n", datadir.c_str());
@@ -406,27 +397,17 @@ void st_menu(void)
   contrib_subset_menu   = new Menu();
   worldmap_menu  = new Menu();
 
-  main_menu->set_pos(screen->w/2, (int)(335)+20);
+  main_menu->set_pos(SCREEN_W/2, (int)(335)+20);
   main_menu->additem(MN_GOTO, "Start Game",0,load_game_menu, MNID_STARTGAME);
   main_menu->additem(MN_GOTO, "Bonus Levels",0,contrib_menu, MNID_CONTRIB);
   main_menu->additem(MN_GOTO, "Options",0,options_menu, MNID_OPTIONMENU);
   
-#ifndef GP2X
-  main_menu->additem(MN_ACTION,"Level Editor",0,0, MNID_LEVELEDITOR);
-#endif
   main_menu->additem(MN_ACTION,"Credits",0,0, MNID_CREDITS);
   main_menu->additem(MN_ACTION,"Quit",0,0, MNID_QUITMAINMENU);
 
   options_menu->additem(MN_LABEL,"Options",0,0);
   options_menu->additem(MN_HL,"",0,0);
-#ifndef GP2X
-#ifndef NOOPENGL
-  options_menu->additem(MN_TOGGLE,"OpenGL",use_gl,0, MNID_OPENGL);
-#else
-  options_menu->additem(MN_DEACTIVE,"OpenGL (not supported)",use_gl, 0, MNID_OPENGL);
-#endif
-  options_menu->additem(MN_TOGGLE,"Fullscreen",use_fullscreen,0, MNID_FULLSCREEN);
-#endif
+
 #ifndef NOSOUND
   if(audio_device)
     {
@@ -443,9 +424,7 @@ void st_menu(void)
   options_menu->additem(MN_TOGGLE,"Show Mouse",show_mouse,0, MNID_SHOWMOUSE);
 #endif
   options_menu->additem(MN_TOGGLE,"Show FPS  ",show_fps,0, MNID_SHOWFPS);
-#ifndef GP2X
-  options_menu->additem(MN_GOTO,"Keyboard Setup",0,options_keys_menu);
-#endif
+
 
   //if(use_joystick)
 #if 0 //def GP2X
@@ -466,21 +445,6 @@ void st_menu(void)
   options_keys_menu->additem(MN_HL,"",0,0);
   options_keys_menu->additem(MN_BACK,"Back",0,0);
 
-#ifndef GP2X
-  if(use_joystick)
-    {
-    options_joystick_menu->additem(MN_LABEL,"Joystick Setup",0,0);
-    options_joystick_menu->additem(MN_HL,"",0,0);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"X axis", 0,0, 0,&joystick_keymap.x_axis);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"Y axis", 0,0, 0,&joystick_keymap.y_axis);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"A button", 0,0, 0,&joystick_keymap.a_button);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"B button", 0,0, 0,&joystick_keymap.b_button);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"Start", 0,0, 0,&joystick_keymap.start_button);
-    options_joystick_menu->additem(MN_CONTROLFIELD,"DeadZone", 0,0, 0,&joystick_keymap.dead_zone);
-    options_joystick_menu->additem(MN_HL,"",0,0);
-    options_joystick_menu->additem(MN_BACK,"Back",0,0);
-    }
-#else
     options_joystick_axis_menu->additem(MN_LABEL,"Joystick Move Setup",0,0);
     options_joystick_axis_menu->additem(MN_CONTROLFIELD,"Up", 0,0, 11,&joystick_keymap.up_button);
     options_joystick_axis_menu->additem(MN_CONTROLFIELD,"Down", 0,0, 12,&joystick_keymap.down_button);
@@ -492,7 +456,7 @@ void st_menu(void)
     options_joystick_button_menu->additem(MN_CONTROLFIELD,"Jump", 0,0, 15,&joystick_keymap.a_button);
     options_joystick_button_menu->additem(MN_CONTROLFIELD,"Shoot/Run", 0,0, 16,&joystick_keymap.b_button);
     options_joystick_button_menu->additem(MN_BACK,"Back",0,0);
-#endif
+
 
   
   load_game_menu->additem(MN_LABEL,"Start Game",0,0);
@@ -636,15 +600,10 @@ void st_general_setup(void)
 
   srand(SDL_GetTicks());
 
-#ifndef GP2X
-  /* Set icon image: */
-
-  seticon();
-#endif
 
   /* Unicode needed for input handling: */
 
-  SDL_EnableUNICODE(1);
+
 
   /* Load global images: */
 
@@ -737,133 +696,97 @@ void st_general_free(void)
   delete main_menu;
 }
 
-void st_video_setup(void)
+
+int st_video_setup(void)
 {
-  /* Init SDL Video: */
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-      fprintf(stderr,
-              "\nError: I could not initialize video!\n"
-              "The Simple DirectMedia error that occured was:\n"
-              "%s\n\n", SDL_GetError());
-#ifdef GP2X_VERSION
-    chdir("/usr/gp2x");
-    execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);    
-#endif
+  // Initialize SDL
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0)
+  {
+    fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+    return -1;
+  }
 
-      exit(1);
-    }
+  // Enable text input for menu/text entry
+  SDL_StartTextInput();
 
-  /* Open display: */
-  if(use_gl)
-    st_video_setup_gl();
-  else
-    st_video_setup_sdl();
-
-  Surface::reload_all();
-
-  /* Set window manager stuff: */
-#ifndef GP2X_VERSION
-  SDL_WM_SetCaption("SuperTux " VERSION, "SuperTux");
-#endif
-}
-
-void st_video_setup_sdl(void)
-{
+  Uint32 window_flags = SDL_WINDOW_SHOWN;
+  
   if (use_fullscreen)
-    {
-#ifndef GP2X
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 0, SDL_FULLSCREEN ) ; /* | SDL_HWSURFACE); */
-#else
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 16, SDL_HWSURFACE |  SDL_DOUBLEBUF) ;
-#endif
-      if (screen == NULL)
-        {
-          fprintf(stderr,
-                  "\nWarning: I could not set up fullscreen video for "
-                  "640x480 mode.\n"
-                  "The Simple DirectMedia error that occured was:\n"
-                  "%s\n\n", SDL_GetError());
-          use_fullscreen = false;
-        }
-    }
-  else
-    {
-#ifndef GP2X
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 0, SDL_SWSURFACE );
-#else
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 16, SDL_HWSURFACE |  SDL_DOUBLEBUF ) ;
-#endif
-      if (screen == NULL)
-        {
-          fprintf(stderr,
-                  "\nError: I could not set up video for 640x480 mode.\n"
-                  "The Simple DirectMedia error that occured was:\n"
-                  "%s\n\n", SDL_GetError());
-#ifdef GP2X_VERSION
-    chdir("/usr/gp2x");
-    execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);    
-#endif
-          exit(1);
-        }
-    }
-}
+  {
+    window_flags |= SDL_WINDOW_FULLSCREEN;
+  }
 
-void st_video_setup_gl(void)
-{
 #ifndef NOOPENGL
-
-  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-  if (use_fullscreen)
-    {
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 0, SDL_FULLSCREEN | SDL_OPENGL) ; /* | SDL_HWSURFACE); */
-      if (screen == NULL)
-        {
-          fprintf(stderr,
-                  "\nWarning: I could not set up fullscreen video for "
-                  "640x480 mode.\n"
-                  "The Simple DirectMedia error that occured was:\n"
-                  "%s\n\n", SDL_GetError());
-          use_fullscreen = false;
-        }
-    }
-  else
-    {
-      screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 0, SDL_OPENGL);
-
-      if (screen == NULL)
-        {
-          fprintf(stderr,
-                  "\nError: I could not set up video for 640x480 mode.\n"
-                  "The Simple DirectMedia error that occured was:\n"
-                  "%s\n\n", SDL_GetError());
-          exit(1);
-        }
-    }
-
-  /*
-   * Set up OpenGL for 2D rendering.
-   */
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-
-  glViewport(0, 0, screen->w, screen->h);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0, screen->w, screen->h, 0, -1.0, 1.0);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glTranslatef(0.0f, 0.0f, 0.0f);
-
+  if (use_gl)
+  {
+    window_flags |= SDL_WINDOW_OPENGL;
+    
+    // Set OpenGL attributes before creating window
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  }
 #endif
 
+  // Create window
+  window = SDL_CreateWindow("SuperTux",
+                            SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED,
+                            SCREEN_W, SCREEN_H,
+                            window_flags);
+
+  if (window == NULL)
+  {
+    fprintf(stderr, "Couldn't create window: %s\n", SDL_GetError());
+    return -1;
+  }
+
+#ifndef NOOPENGL
+  if (use_gl)
+  {
+    // Create OpenGL context
+    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+    if (gl_context == NULL)
+    {
+      fprintf(stderr, "Couldn't create OpenGL context: %s\n", SDL_GetError());
+      return -1;
+    }
+    
+    // Setup OpenGL
+    glViewport(0, 0, SCREEN_W, SCREEN_H);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, SCREEN_W, SCREEN_H, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Enable vsync
+    SDL_GL_SetSwapInterval(1);
+  }
+  else
+#endif
+  {
+    // Create renderer for software rendering
+    renderer = SDL_CreateRenderer(window, -1, 
+                                   SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (renderer == NULL)
+    {
+      fprintf(stderr, "Couldn't create renderer: %s\n", SDL_GetError());
+      return -1;
+    }
+    
+    // Set logical size for consistent rendering
+    SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
+  }
+  
+  return 0;
 }
+
+
 
 void st_joystick_setup(void)
 {
@@ -901,29 +824,6 @@ void st_joystick_setup(void)
 
               use_joystick = false;
             }
-#ifndef GP2X
-          else
-            {
-              if (SDL_JoystickNumAxes(js) < 2)
-                {
-                  fprintf(stderr,
-                          "Warning: Joystick does not have enough axes!\n");
-
-                  use_joystick = false;
-                }
-              else
-                {
-                  if (SDL_JoystickNumButtons(js) < 2)
-                    {
-                      fprintf(stderr,
-                              "Warning: "
-                              "Joystick does not have enough buttons!\n");
-
-                      use_joystick = false;
-                    }
-                }
-            }
-#endif
         }
     }
 }
@@ -958,20 +858,12 @@ void st_audio_setup(void)
         }
     }
 
-#ifdef GP2X
-	//This is from the GP2X patch (without the ifdefs)
-    audio_device = true;
-#endif
     
   /* Open sound silently regarless the value of "use_sound": */
 
   if (audio_device)
     {
-#ifndef GP2X    
-      if (open_audio(44100, AUDIO_S16, 2, 2048) < 0)
-#else
-      if (open_audio(44100, AUDIO_S16, 1, 1024) < 0)
-#endif      
+      if (open_audio(44100, AUDIO_S16, 1, 1024) < 0)    
         {
           /* only print out message if sound or music
              was not disabled at command-line
@@ -1003,10 +895,6 @@ void st_shutdown(void)
 #endif
   SDL_Quit();
   saveconfig();
-#ifdef GP2X
-    chdir("/usr/gp2x");
-    execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);    
-#endif
 
 }
 
@@ -1023,42 +911,7 @@ void st_abort(const std::string& reason, const std::string& details)
 
 void seticon(void)
 {
-#ifndef GP2X
-//  int masklen;
-//  Uint8 * mask;
-  SDL_Surface * icon;
 
-
-  /* Load icon into a surface: */
-
-  icon = IMG_Load((datadir + "/images/icon.xpm").c_str());
-  if (icon == NULL)
-    {
-      fprintf(stderr,
-              "\nError: I could not load the icon image: %s%s\n"
-              "The Simple DirectMedia error that occured was:\n"
-              "%s\n\n", datadir.c_str(), "/images/icon.xpm", SDL_GetError());
-      exit(1);
-    }
-
-
-  /* Create mask: */
-/*
-  masklen = (((icon -> w) + 7) / 8) * (icon -> h);
-  mask = (Uint8*) malloc(masklen * sizeof(Uint8));
-  memset(mask, 0xFF, masklen);
-*/
-
-  /* Set icon: */
-
-  SDL_WM_SetIcon(icon, NULL);//mask);
-
-
-  /* Free icon surface & mask: */
-
-//  free(mask);
-  SDL_FreeSurface(icon);
-#endif
 }
 
 
@@ -1095,28 +948,6 @@ void parseargs(int argc, char * argv[])
         }
       else if (strcmp(argv[i], "--joymap") == 0)
         {
-#ifndef GP2X
-          assert(i+1 < argc);
-          if (sscanf(argv[++i],
-                     "%d:%d:%d:%d:%d", 
-                     &joystick_keymap.x_axis, 
-                     &joystick_keymap.y_axis, 
-                     &joystick_keymap.a_button, 
-                     &joystick_keymap.b_button, 
-                     &joystick_keymap.start_button) != 5)
-            {
-              puts("Warning: Invalid or incomplete joymap, should be: 'XAXIS:YAXIS:A:B:START'");
-            }
-          else
-            {
-              std::cout << "Using new joymap:\n"
-                        << "  X-Axis:       " << joystick_keymap.x_axis << "\n"
-                        << "  Y-Axis:       " << joystick_keymap.y_axis << "\n"
-                        << "  A-Button:     " << joystick_keymap.a_button << "\n"
-                        << "  B-Button:     " << joystick_keymap.b_button << "\n"
-                        << "  Start-Button: " << joystick_keymap.start_button << std::endl;
-            }
-#endif
         }
       else if (strcmp(argv[i], "--leveleditor") == 0)
         {

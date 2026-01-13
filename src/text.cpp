@@ -20,10 +20,14 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <SDL2/SDL.h>
+
 #include "globals.h"
 #include "defines.h"
 #include "screen.h"
 #include "text.h"
+
 #ifndef NOSOUND
 #include "sound.h"
 #endif
@@ -58,7 +62,10 @@ Text::Text(const std::string& file, int kind_, int w_, int h_)
   chars = new Surface(file, USE_ALPHA);
 
   // Load shadow font.
-  conv = SDL_DisplayFormatAlpha(chars->impl->get_sdl_surface());
+  // SDL2: Use SDL_ConvertSurfaceFormat instead of SDL_DisplayFormatAlpha
+  SDL_Surface* src_surface = chars->impl->get_sdl_surface();
+  conv = SDL_ConvertSurfaceFormat(src_surface, SDL_PIXELFORMAT_RGBA8888, 0);
+  
   pixels = conv->w * conv->h;
   SDL_LockSurface(conv);
   for(i = 0; i < pixels; ++i)
@@ -67,9 +74,12 @@ Text::Text(const std::string& file, int kind_, int w_, int h_)
       *p = *p & conv->format->Amask;
     }
   SDL_UnlockSurface(conv);
-  SDL_SetAlpha(conv, SDL_SRCALPHA, 128);
-  shadow_chars = new Surface(conv, USE_ALPHA);
 
+  // SDL2: Use SDL_SetSurfaceAlphaMod and SDL_SetSurfaceBlendMode instead of SDL_SetAlpha
+  SDL_SetSurfaceAlphaMod(conv, 128);
+  SDL_SetSurfaceBlendMode(conv, SDL_BLENDMODE_BLEND);
+
+  shadow_chars = new Surface(conv, USE_ALPHA);
   SDL_FreeSurface(conv);
 }
 
@@ -80,21 +90,20 @@ Text::~Text()
 }
 
 void
-Text::draw(const  char* text, int x, int y, int shadowsize, int update)
+Text::draw(const char* text, int x, int y, int shadowsize, int update)
 {
   if(text != NULL)
     {
       if(shadowsize != 0)
-        draw_chars(shadow_chars, text,x+shadowsize,y+shadowsize, update);
-
-      draw_chars(chars, text,x,y, update);
+        draw_chars(shadow_chars, text, x+shadowsize, y+shadowsize, update);
+      draw_chars(chars, text, x, y, update);
     }
 }
 
 void
-Text::draw_chars(Surface* pchars,const  char* text, int x, int y, int update)
+Text::draw_chars(Surface* pchars, const char* text, int x, int y, int update)
 {
-  int i,j,len;
+  int i, j, len;
 
   len = strlen(text);
   int w = this->w;
@@ -102,43 +111,37 @@ Text::draw_chars(Surface* pchars,const  char* text, int x, int y, int update)
 
   if(kind == TEXT_TEXT)
     {
-      for( i = 0, j = 0; i < len; ++i,++j)
+      for(i = 0, j = 0; i < len; ++i, ++j)
         {
-          if( text[i] >= ' ' && text[i] <= '/')
-            pchars->draw_part((int)(text[i] - ' ')*w,  0 , x+(j*w), y, w, h, 255,  update);
-          else if( text[i] >= '0' && text[i] <= '?')
-            pchars->draw_part((int)(text[i] - '0')*w, h*1, x+(j*w), y, w, h, 255,  update);
-          else if ( text[i] >= '@' && text[i] <= 'O')
-            pchars->draw_part((int)(text[i] - '@')*w, h*2, x+(j*w), y, w, h, 255,  update);
-          else if ( text[i] >= 'P' && text[i] <= '_')
-            pchars->draw_part((int)(text[i] - 'P')*w, h*3, x+(j*w), y, w, h, 255,  update);
-          else if ( text[i] >= '`' && text[i] <= 'o')
-            pchars->draw_part((int)(text[i] - '`')*w, h*4, x+(j*w), y, w, h, 255,  update);
-          else if ( text[i] >= 'p' && text[i] <= '~')
-            pchars->draw_part((int)(text[i] - 'p')*w, h*5, x+(j*w), y, w, h, 255,  update);
-          else if ( text[i] == '\n')
+          if(text[i] >= ' ' && text[i] <= '/')
+            pchars->draw_part((int)(text[i] - ' ')*w, 0, x+(j*w), y, w, h, 255, update);
+          else if(text[i] >= '0' && text[i] <= '?')
+            pchars->draw_part((int)(text[i] - '0')*w, h*1, x+(j*w), y, w, h, 255, update);
+          else if(text[i] >= '@' && text[i] <= 'O')
+            pchars->draw_part((int)(text[i] - '@')*w, h*2, x+(j*w), y, w, h, 255, update);
+          else if(text[i] >= 'P' && text[i] <= '_')
+            pchars->draw_part((int)(text[i] - 'P')*w, h*3, x+(j*w), y, w, h, 255, update);
+          else if(text[i] >= '`' && text[i] <= 'o')
+            pchars->draw_part((int)(text[i] - '`')*w, h*4, x+(j*w), y, w, h, 255, update);
+          else if(text[i] >= 'p' && text[i] <= '~')
+            pchars->draw_part((int)(text[i] - 'p')*w, h*5, x+(j*w), y, w, h, 255, update);
+          else if(text[i] == '\n')
             {
               y += h + 2;
-#ifdef RES320X240
-	    y+=6;
-#endif
-              j = 0;
+              j = -1;
             }
         }
     }
   else if(kind == TEXT_NUM)
     {
-      for( i = 0, j = 0; i < len; ++i, ++j)
+      for(i = 0, j = 0; i < len; ++i, ++j)
         {
-          if ( text[i] >= '0' && text[i] <= '9')
+          if(text[i] >= '0' && text[i] <= '9')
             pchars->draw_part((int)(text[i] - '0')*w, 0, x+(j*w), y, w, h, 255, update);
-          else if ( text[i] == '\n')
+          else if(text[i] == '\n')
             {
               y += h + 2;
-#ifdef RES320X240
-	    y+=6;
-#endif
-              j = 0;
+              j = -1;
             }
         }
     }
@@ -146,7 +149,7 @@ Text::draw_chars(Surface* pchars,const  char* text, int x, int y, int update)
 
 void
 Text::draw_align(const char* text, int x, int y,
-                      TextHAlign halign, TextVAlign valign, int shadowsize, int update)
+                 TextHAlign halign, TextVAlign valign, int shadowsize, int update)
 {
   if(text != NULL)
     {
@@ -168,10 +171,9 @@ Text::draw_align(const char* text, int x, int y,
         case A_BOTTOM:
           y -= h;
           break;
-          
         case A_VMIDDLE:
           y -= h/2;
-
+          break;
         case A_TOP:
           // default
           break;
@@ -182,58 +184,61 @@ Text::draw_align(const char* text, int x, int y,
 }
 
 void
-Text::drawf(const  char* text, int x, int y,
-                 TextHAlign halign, TextVAlign valign, int shadowsize, int update)
+Text::drawf(const char* text, int x, int y,
+            TextHAlign halign, TextVAlign valign, int shadowsize, int update)
 {
   if(text != NULL)
     {
-      if(halign == A_RIGHT)  /* FIXME: this doesn't work correctly for strings with newlines.*/
-        x += screen->w - (strlen(text)*w);
+      int win_w, win_h;
+      SDL_GetWindowSize(window, &win_w, &win_h);
+
+      if(halign == A_RIGHT)
+        x += win_w - (strlen(text)*w);
       else if(halign == A_HMIDDLE)
-        x += screen->w/2 - ((strlen(text)*w)/2);
+        x += win_w/2 - ((strlen(text)*w)/2);
 
       if(valign == A_BOTTOM)
-        y += screen->h - h;
+        y += win_h - h;
       else if(valign == A_VMIDDLE)
-        y += screen->h/2 - h/2;
+        y += win_h/2 - h/2;
 
-      draw(text,x,y,shadowsize, update);
+      draw(text, x, y, shadowsize, update);
     }
 }
 
 /* --- ERASE TEXT: --- */
-
 void
-Text::erasetext(const  char * text, int x, int y, Surface * ptexture, int update, int shadowsize)
+Text::erasetext(const char* text, int x, int y, Surface* ptexture, int update, int shadowsize)
 {
-  SDL_Rect dest;
+  int win_w, win_h;
+  SDL_GetWindowSize(window, &win_w, &win_h);
 
+  SDL_Rect dest;
   dest.x = x;
   dest.y = y;
   dest.w = strlen(text) * w + shadowsize;
   dest.h = h;
 
-  if (dest.w > screen->w)
-    dest.w = screen->w;
+  if (dest.w > win_w)
+    dest.w = win_w;
 
-  ptexture->draw_part(dest.x,dest.y,dest.x,dest.y,dest.w,dest.h, 255, update);
+  ptexture->draw_part(dest.x, dest.y, dest.x, dest.y, dest.w, dest.h, 255, update);
 
   if (update == UPDATE)
-    update_rect(screen, dest.x, dest.y, dest.w, dest.h);
+    update_rect(NULL, dest.x, dest.y, dest.w, dest.h);
 }
-
 
 /* --- ERASE CENTERED TEXT: --- */
-
 void
-Text::erasecenteredtext(const  char * text, int y, Surface * ptexture, int update, int shadowsize)
+Text::erasecenteredtext(const char* text, int y, Surface* ptexture, int update, int shadowsize)
 {
-  erasetext(text, screen->w / 2 - (strlen(text) * 8), y, ptexture, update, shadowsize);
+  int win_w, win_h;
+  SDL_GetWindowSize(window, &win_w, &win_h);
+
+  erasetext(text, win_w / 2 - (strlen(text) * 8), y, ptexture, update, shadowsize);
 }
 
-
 /* --- SCROLL TEXT FUNCTION --- */
-
 #define MAX_VEL     10
 #define SPEED_INC   0.01
 #define SCROLL      60
@@ -257,87 +262,74 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
   char temp[1024];
   string_list_type names;
   char filename[1024];
+
+  int win_w, win_h;
+  SDL_GetWindowSize(window, &win_w, &win_h);
+
   string_list_init(&names);
-  sprintf(filename,"%s/%s", datadir.c_str(), file.c_str());
-  if((fi = fopen(filename,"r")) != NULL)
+  snprintf(filename, sizeof(filename), "%s/%s", datadir.c_str(), file.c_str());
+
+  if((fi = fopen(filename, "r")) != NULL)
     {
       while(fgets(temp, sizeof(temp), fi) != NULL)
         {
-          temp[strlen(temp)-1]='\0';
-          string_list_add_item(&names,temp);
+          temp[strlen(temp)-1] = '\0';
+          string_list_add_item(&names, temp);
         }
       fclose(fi);
     }
   else
     {
-      string_list_add_item(&names,"File was not found!");
-      string_list_add_item(&names,filename);
-      string_list_add_item(&names,"Shame on the guy, who");
-      string_list_add_item(&names,"forgot to include it");
-      string_list_add_item(&names,"in your SuperTux distribution.");
+      string_list_add_item(&names, "File was not found!");
+      string_list_add_item(&names, filename);
+      string_list_add_item(&names, "Shame on the guy, who");
+      string_list_add_item(&names, "forgot to include it");
+      string_list_add_item(&names, "in your SuperTux distribution.");
     }
-
 
   scroll = 0;
   speed = scroll_speed / 50;
   done = 0;
-
   length = names.num_items;
 
-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
   Uint32 lastticks = SDL_GetTicks();
+
   while(done == 0)
     {
       /* in case of input, exit */
       SDL_Event event;
       while(SDL_PollEvent(&event))
-        switch(event.type)
-          {
-          case SDL_KEYDOWN:
-            switch(event.key.keysym.sym)
-              {
-              case SDLK_UP:
-                speed -= SPEED_INC;
-                break;
-              case SDLK_DOWN:
-                speed += SPEED_INC;
-                break;
-              case SDLK_SPACE:
-              case SDLK_RETURN:
-                if(speed >= 0)
-                  scroll += SCROLL;
-                break;
-              case SDLK_ESCAPE:
-                done = 1;
-                break;
-              default:
-                break;
-              }
-            break;
-#ifdef GP2X
-	  case SDL_JOYBUTTONDOWN:
-	    if ( event.jbutton.button == joystick_keymap.down_button ) {
-            	    speed += SPEED_INC;
-	    }
-	    if ( event.jbutton.button == joystick_keymap.up_button ) {
-            	    speed -= SPEED_INC;
-	    }	    
-	    if ( event.jbutton.button == joystick_keymap.b_button ) {
-            	    done = 1;
-	    }	    
-	    if ( event.jbutton.button == joystick_keymap.a_button ) {
-            	    scroll += SCROLL;
-	    }
-	  break;
-#endif
-
-          case SDL_QUIT:
-            done = 1;
-            break;
-          default:
-            break;
-          }
+        {
+          switch(event.type)
+            {
+            case SDL_KEYDOWN:
+              switch(event.key.keysym.sym)
+                {
+                case SDLK_UP:
+                  speed -= SPEED_INC;
+                  break;
+                case SDLK_DOWN:
+                  speed += SPEED_INC;
+                  break;
+                case SDLK_SPACE:
+                case SDLK_RETURN:
+                  if(speed >= 0)
+                    scroll += SCROLL;
+                  break;
+                case SDLK_ESCAPE:
+                  done = 1;
+                  break;
+                default:
+                  break;
+                }
+              break;
+            case SDL_QUIT:
+              done = 1;
+              break;
+            default:
+              break;
+            }
+        }
 
       if(speed > MAX_VEL)
         speed = MAX_VEL;
@@ -350,72 +342,46 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
       y = 0;
       for(int i = 0; i < length; i++)
         {
-        switch(names.item[i][0])
-          {
-          case ' ':
-            white_small_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll),
-                A_HMIDDLE, A_TOP, 1);
-            y += white_small_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
-            break;
-          case '	':
-            white_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll),
-                A_HMIDDLE, A_TOP, 1);
-            y += white_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
-            break;
-          case '-':
-#ifdef RES320X240
-            white_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll), A_HMIDDLE, A_TOP, 3);
-#else
-            white_big_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll), A_HMIDDLE, A_TOP, 3);
-#endif
-            y += white_big_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
-            break;
-          default:
-            blue_text->drawf(names.item[i], 0, screen->h+y-int(scroll),
-                A_HMIDDLE, A_TOP, 1);
-            y += blue_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
-            break;
-          }
+          switch(names.item[i][0])
+            {
+            case ' ':
+              white_small_text->drawf(names.item[i]+1, 0, win_h+y-int(scroll),
+                                      A_HMIDDLE, A_TOP, 1);
+              y += white_small_text->h + ITEMS_SPACE;
+              break;
+            case '\t':
+              white_text->drawf(names.item[i]+1, 0, win_h+y-int(scroll),
+                                A_HMIDDLE, A_TOP, 1);
+              y += white_text->h + ITEMS_SPACE;
+              break;
+            case '-':
+              white_big_text->drawf(names.item[i]+1, 0, win_h+y-int(scroll),
+                                    A_HMIDDLE, A_TOP, 3);
+              y += white_big_text->h + ITEMS_SPACE;
+              break;
+            default:
+              blue_text->drawf(names.item[i], 0, win_h+y-int(scroll),
+                               A_HMIDDLE, A_TOP, 1);
+              y += blue_text->h + ITEMS_SPACE;
+              break;
+            }
         }
 
       flipscreen();
 
-      if(screen->h+y-scroll < 0 && 20+screen->h+y-scroll < 0)
+      if(win_h + y - scroll < 0 && 20 + win_h + y - scroll < 0)
         done = 1;
 
       Uint32 ticks = SDL_GetTicks();
       scroll += speed * (ticks - lastticks);
       lastticks = ticks;
+
       if(scroll < 0)
         scroll = 0;
 
-#ifndef GP2X
-    SDL_Delay(10);
-#else
-    SDL_Delay(2);
-#ifndef NOSOUND
-#ifdef USEMIKMOD
-    updateSound();
-#endif
-#endif
-#endif
-
+      SDL_Delay(10);
     }
-  string_list_free(&names);
 
-  SDL_EnableKeyRepeat(0, 0);    // disables key repeating
+  string_list_free(&names);
   Menu::set_current(main_menu);
 }
-

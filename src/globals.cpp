@@ -63,7 +63,6 @@ Text* white_big_text;
 
 MouseCursor * mouse_cursor;
 
-bool use_gl;
 bool use_joystick;
 bool use_fullscreen;
 bool debug_mode;
@@ -74,6 +73,14 @@ float game_speed = 1.0f;
 int joystick_num = 0;
 char* level_startup_file = 0;
 bool launch_leveleditor_mode = false;
+
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+bool use_gl = false;
+
+int SCREEN_W = 0;
+int SCREEN_H = 0;
+
 
 /* SuperTux directory ($HOME/.supertux) and save directory($HOME/.supertux/save) */
 char *st_dir, *st_save_dir;

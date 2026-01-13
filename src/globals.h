@@ -28,44 +28,12 @@
 #include "menu.h"
 #include "mousecursor.h"
 
-#ifdef GP2X
-#define GP2X_BUTTON_UP              (0)
-#define GP2X_BUTTON_DOWN            (4)
-#define GP2X_BUTTON_LEFT            (2)
-#define GP2X_BUTTON_RIGHT           (6)
-#define GP2X_BUTTON_UPLEFT          (1)
-#define GP2X_BUTTON_UPRIGHT         (7)
-#define GP2X_BUTTON_DOWNLEFT        (3)
-#define GP2X_BUTTON_DOWNRIGHT       (5)
-#define GP2X_BUTTON_CLICK           (18)
-#define GP2X_BUTTON_A               (12)
-#define GP2X_BUTTON_B               (13)
-#define GP2X_BUTTON_X               (15)
-#define GP2X_BUTTON_Y               (14)
-#define GP2X_BUTTON_L               (10)
-#define GP2X_BUTTON_R               (11)
-#define GP2X_BUTTON_START           (8)
-#define GP2X_BUTTON_SELECT          (9)
-#define GP2X_BUTTON_VOLUP           (16)
-#define GP2X_BUTTON_VOLDOWN         (17)
-#endif
 
 extern std::string datadir;
 
 struct JoystickKeymap
 {
-#ifndef GP2X
-  int a_button;
-  int b_button;
-  int start_button;
 
-  int x_axis;
-  int y_axis;
-  
-  int dead_zone;
-
-  JoystickKeymap();
-#else
   int a_button;
   int b_button;
   int start_button;
@@ -73,16 +41,22 @@ struct JoystickKeymap
   int down_button;
   int left_button;
   int right_button;
-  int volup_button;
-  int voldown_button;
+  
+  int x_axis;
+  int y_axis;
+  
+  // Dead zone for analog sticks
+  int dead_zone;
 
   JoystickKeymap();
-#endif
+
 };
 
 extern JoystickKeymap joystick_keymap;
 
 extern SDL_Surface * screen;
+extern SDL_Window* window;
+extern SDL_Renderer* renderer;
 extern Text* black_text;
 extern Text* gold_text;
 extern Text* silver_text;
@@ -95,6 +69,9 @@ extern Text* green_text;
 extern Text* yellow_nums;
 
 extern MouseCursor * mouse_cursor;
+
+extern int SCREEN_W;
+extern int SCREEN_H;
 
 extern bool use_gl;
 extern bool use_joystick;
