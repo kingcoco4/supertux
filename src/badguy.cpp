@@ -269,9 +269,9 @@ BadGuy::action_mriceblock(double frame_ratio)
 #ifndef NOSOUND
 #ifndef USEMIKMOD
           /* handle stereo sound (number 10 should be tweaked...)*/
-          if (base.x < scroll_x + screen->w/2 - 10)
+          if (base.x < scroll_x + SCREEN_W/2 - 10)
             play_sound(sounds[SND_RICOCHET], SOUND_LEFT_SPEAKER);
-          else if (base.x > scroll_x + screen->w/2 + 10)
+          else if (base.x > scroll_x + SCREEN_W/2 + 10)
             play_sound(sounds[SND_RICOCHET], SOUND_RIGHT_SPEAKER);
           else
             play_sound(sounds[SND_RICOCHET], SOUND_CENTER_SPEAKER);
@@ -466,12 +466,12 @@ BadGuy::action_bomb(double frame_ratio)
       timer.start(EXPLODETIME);
 
       /* play explosion sound */  // FIXME: is the stereo all right? maybe we should use player cordinates...
-      if (base.x < scroll_x + screen->w/2 - 10) {
+      if (base.x < scroll_x + SCREEN_W/2 - 10) {
 #ifndef NOSOUND
 #ifndef USEMIKMOD
         play_sound(sounds[SND_EXPLODE], SOUND_LEFT_SPEAKER);
 	  }
-      else if (base.x > scroll_x + screen->w/2 + 10) {
+      else if (base.x > scroll_x + SCREEN_W/2 + 10) {
         play_sound(sounds[SND_EXPLODE], SOUND_RIGHT_SPEAKER);
 	  }
       else {
@@ -699,7 +699,7 @@ BadGuy::action(double frame_ratio)
 
   // BadGuy fall below the ground
 #ifndef RES320X240
-  if (base.y > screen->h) {
+  if (base.y > SCREEN_H) {
 #else
   if (base.y > 640) {
 #endif
@@ -709,7 +709,7 @@ BadGuy::action(double frame_ratio)
 
   // Once it's on screen, it's activated!
 #ifndef RES320X240
-  if (base.x <= scroll_x + screen->w + OFFSCREEN_DISTANCE)
+  if (base.x <= scroll_x + SCREEN_W + OFFSCREEN_DISTANCE)
 #else
   if (base.x <= scroll_x + 640 + OFFSCREEN_DISTANCE)
 #endif
@@ -773,7 +773,7 @@ BadGuy::draw()
 {
   // Don't try to draw stuff that is outside of the screen
 #ifndef RES320X240
-  if(base.x <= scroll_x - base.width || base.x >= scroll_x + screen->w)
+  if(base.x <= scroll_x - base.width || base.x >= scroll_x + SCREEN_W)
 #else
   if(base.x <= scroll_x - base.width || base.x >= scroll_x + 640)
 #endif

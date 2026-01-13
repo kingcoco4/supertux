@@ -74,7 +74,7 @@ GameSession::GameSession(const std::string& subset_, int levelnb_, int mode)
   restart_level();
 
 #ifdef TSCONTROL
-  old_mouse_y = screen->w;
+  old_mouse_y = SCREEN_W;
 #endif
 }
 
@@ -117,7 +117,7 @@ GameSession::restart_level()
       for(std::vector<ResetPoint>::iterator i = get_level()->reset_points.begin();
           i != get_level()->reset_points.end(); ++i)
         {
-          if (i->x - screen->w/2 < old_x_pos && best_reset_point.x < i->x)
+          if (i->x - SCREEN_W/2 < old_x_pos && best_reset_point.x < i->x)
             best_reset_point = *i;
         }
       
@@ -132,7 +132,7 @@ GameSession::restart_level()
               std::cout << "Warning: reset point inside a wall.\n";
           }                                                                  
 
-          scroll_x = best_reset_point.x - screen->w/2;
+          scroll_x = best_reset_point.x - SCREEN_W/2;
         }
     }
     
@@ -401,32 +401,32 @@ GameSession::process_events()
 		  }
 		  old_mouse_y = event.motion.y;
 		  //stand still
-		  if ((event.motion.x < (screen->w/2)+(screen->w/10))
-		    && (event.motion.x > (screen->w/2)-(screen->w/10))) {
+		  if ((event.motion.x < (SCREEN_W/2)+(SCREEN_W/10))
+		    && (event.motion.x > (SCREEN_W/2)-(SCREEN_W/10))) {
 		      tux.input.fire = UP;
 		      tux.input.left = UP;
 			  tux.input.right = UP;
 		  }
 		  //run left
-		  else if ((event.motion.x > 0) && (event.motion.x < (screen->w/8))) {
+		  else if ((event.motion.x > 0) && (event.motion.x < (SCREEN_W/8))) {
 		    tux.input.fire = DOWN;
 		    tux.input.left = DOWN;
 		    tux.input.right = UP;
 		  }
 		  //walk left
-		  else if ((event.motion.x > (screen->w/8)) && (event.motion.x < (screen->w/2))) {
+		  else if ((event.motion.x > (SCREEN_W/8)) && (event.motion.x < (SCREEN_W/2))) {
 		    tux.input.fire = UP;
 		    tux.input.right = UP;
 		    tux.input.left = DOWN;
 		  }
 		  //walk right
-		  else if ((event.motion.x > (screen->w/2)) && (event.motion.x < ((7*screen->w)/8))) {
+		  else if ((event.motion.x > (SCREEN_W/2)) && (event.motion.x < ((7*SCREEN_W)/8))) {
 		    tux.input.fire = UP;
 		    tux.input.right = DOWN;
 		    tux.input.left = UP;
 		  }
 		  //run right
-		  else if ((event.motion.x > ((7*screen->w)/8)) && (event.motion.x < screen->w)) {
+		  else if ((event.motion.x > ((7*SCREEN_W)/8)) && (event.motion.x < SCREEN_W)) {
 		    tux.input.fire = DOWN;
 		    tux.input.right = DOWN;
 		    tux.input.left = UP;
@@ -635,12 +635,12 @@ GameSession::draw()
 
   if(game_pause)
     {
-      int x = screen->h / 20;
+      int x = SCREEN_H / 20;
       for(int i = 0; i < x; ++i)
         {
-          fillrect(i % 2 ? (pause_menu_frame * i)%screen->w : -((pause_menu_frame * i)%screen->w) ,(i*20+pause_menu_frame)%screen->h,screen->w,10,20,20,20, rand() % 20 + 1);
+          fillrect(i % 2 ? (pause_menu_frame * i)%SCREEN_W : -((pause_menu_frame * i)%SCREEN_W) ,(i*20+pause_menu_frame)%SCREEN_H,SCREEN_W,10,20,20,20, rand() % 20 + 1);
         }
-      fillrect(0,0,screen->w,screen->h,rand() % 50, rand() % 50, rand() % 50, 128);
+      fillrect(0,0,SCREEN_W,SCREEN_H,rand() % 50, rand() % 50, rand() % 50, 128);
       blue_text->drawf("PAUSE - Press 'P' To Play", 0, 230, A_HMIDDLE, A_TOP, 1);
     }
 
@@ -652,49 +652,49 @@ GameSession::draw()
   
 #ifdef TSCONTROL
   if (show_mouse) MouseCursor::current()->draw();
-  int y = 5*screen->h/6;
-  int h = screen->h/6;
+  int y = 5*SCREEN_H/6;
+  int h = SCREEN_H/6;
   //run left
   fillrect(
     0,
 	y,
-	screen->w/8,
+	SCREEN_W/8,
 	h,
 	20,20,20,
 	60
   );
   //walk left
   fillrect(
-    screen->w/8,
+    SCREEN_W/8,
 	y,
-	screen->w/2 - screen->w/10 - screen->w/8,
+	SCREEN_W/2 - SCREEN_W/10 - SCREEN_W/8,
 	h,
 	20,20,20,
 	40
   );
   //stand
   fillrect(
-    screen->w/2 - (screen->w/10),
+    SCREEN_W/2 - (SCREEN_W/10),
 	y,
-	screen->w/5,
+	SCREEN_W/5,
 	h,
 	20,20,20,
 	20
   );
   //walk right
   fillrect(
-    screen->w/2 + (screen->w/10),
+    SCREEN_W/2 + (SCREEN_W/10),
 	y,
-	screen->w/2 - screen->w/10 - screen->w/8,
+	SCREEN_W/2 - SCREEN_W/10 - SCREEN_W/8,
 	h,
 	20,20,20,
 	40
   );
   //run right
   fillrect(
-    7*screen->w/8,
+    7*SCREEN_W/8,
 	y,
-	screen->w/8,
+	SCREEN_W/8,
 	h,
 	20,20,20,
 	60
@@ -904,7 +904,7 @@ GameSession::drawstatus()
   }
 
   sprintf(str, "%d", player_status.distros);
-  white_text->draw("COINS", screen->h, 0, 1);
+  white_text->draw("COINS", SCREEN_H, 0, 1);
   gold_text->draw(str, 608/xdiv, 0, 1);
 
   white_text->draw("LIVES", 480/xdiv, 20);
@@ -928,8 +928,8 @@ GameSession::drawstatus()
   if(show_fps)
     {
       sprintf(str, "%2.1f", fps_fps);
-      white_text->draw("FPS", screen->h, 40, 1);
-      gold_text->draw(str, screen->h + 60, 40, 1);
+      white_text->draw("FPS", SCREEN_H, 40, 1);
+      gold_text->draw(str, SCREEN_H + 60, 40, 1);
     }
 //    updateSound();
 }

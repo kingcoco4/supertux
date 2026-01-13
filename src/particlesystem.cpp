@@ -29,8 +29,8 @@
 ParticleSystem::ParticleSystem()
 {
 #ifndef RES320X240
-    virtual_width = screen->w;
-    virtual_height = screen->h;
+    virtual_width = SCREEN_W;
+    virtual_height = SCREEN_H;
 #else
     virtual_width = 640;
     virtual_height = 480;
@@ -63,13 +63,13 @@ void ParticleSystem::draw(float scrollx, float scrolly, int layer)
 
         // particle on screen
 #ifndef RES320X240
-        if(x >= screen->w && xmax >= screen->w)
+        if(x >= SCREEN_W && xmax >= SCREEN_W)
             continue;
-        if(y >= screen->h && ymax >= screen->h)
+        if(y >= SCREEN_H && ymax >= SCREEN_H)
             continue;
         
-        if(x > screen->w) x -= virtual_width;
-        if(y > screen->h) y -= virtual_height;
+        if(x > SCREEN_W) x -= virtual_width;
+        if(y > SCREEN_H) y -= virtual_height;
 #else
         if(x >= 640 && xmax >= 640)
             continue;
@@ -91,7 +91,7 @@ SnowParticleSystem::SnowParticleSystem()
     snowimages[2] = new Surface(datadir+"/images/shared/snow2.png", USE_ALPHA);
 
 #ifndef RES320X240
-    virtual_width = screen->w * 2;
+    virtual_width = SCREEN_W * 2;
 
 #else
     virtual_width = 640 * 2;
@@ -102,7 +102,7 @@ SnowParticleSystem::SnowParticleSystem()
         SnowParticle* particle = new SnowParticle;
         particle->x = rand() % int(virtual_width);
 #ifndef RES320X240
-        particle->y = rand() % screen->h;
+        particle->y = rand() % SCREEN_H;
 #else
         particle->y = rand() % 480;
 #endif
@@ -131,7 +131,7 @@ void SnowParticleSystem::simulate(float elapsed_time)
         SnowParticle* particle = (SnowParticle*) *i;
         particle->y += particle->speed * elapsed_time;
 #ifndef RES320X240
-        if(particle->y > screen->h) {
+        if(particle->y > SCREEN_H) {
 #else
         if(particle->y > 480) {
 #endif

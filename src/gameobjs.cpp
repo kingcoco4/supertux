@@ -148,7 +148,7 @@ BouncyBrick::draw()
   
 #ifndef RES320X240
   if (base.x >= scroll_x - 32 &&
-      base.x <= scroll_x + screen->w)
+      base.x <= scroll_x + SCREEN_W)
 #else
   if (base.x >= scroll_x - 32 &&
       base.x <= scroll_x + 640)
