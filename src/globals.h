@@ -80,6 +80,11 @@ extern bool debug_mode;
 extern bool show_fps;
 extern bool show_mouse;
 
+#ifndef NOOPENGL
+#include <SDL2/SDL_opengl.h>
+extern SDL_GLContext gl_context;
+#endif
+
 /** The number of the joystick that will be use in the game */
 extern int joystick_num;
 extern char* level_startup_file;

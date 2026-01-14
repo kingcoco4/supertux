@@ -627,9 +627,31 @@ GameSession::action(double frame_ratio)
     }
 }
 
-void 
-GameSession::draw()
+void GameSession::draw()
 {
+  // DEBUG: Add these lines at the very start
+  static bool first_frame = true;
+  if (first_frame)
+  {
+    printf("DEBUG: GameSession::draw() called\n");
+    printf("DEBUG: use_gl = %d\n", use_gl);
+    printf("DEBUG: renderer = %p\n", (void*)renderer);
+    printf("DEBUG: window = %p\n", (void*)window);
+    first_frame = false;
+  }
+
+  // Force clear at start of every frame
+  if (use_gl)
+  {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+  else
+  {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+  }
+
   world->draw();
   drawstatus();
 

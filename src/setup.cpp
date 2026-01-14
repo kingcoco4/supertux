@@ -732,13 +732,16 @@ int st_video_setup(void)
 #ifndef NOOPENGL
   if (use_gl)
   {
-    // Create OpenGL context
-    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+    // Create OpenGL context - store in global variable!
+    gl_context = SDL_GL_CreateContext(window);
     if (gl_context == NULL)
     {
       fprintf(stderr, "Couldn't create OpenGL context: %s\n", SDL_GetError());
       return -1;
     }
+    
+    // Make context current
+    SDL_GL_MakeCurrent(window, gl_context);
     
     // Setup OpenGL
     glViewport(0, 0, SCREEN_W, SCREEN_H);
@@ -747,11 +750,26 @@ int st_video_setup(void)
     glOrtho(0, SCREEN_W, SCREEN_H, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    
+    // Disable depth test for 2D rendering
+    glDisable(GL_DEPTH_TEST);
+    
+    // Enable blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    // Set clear color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    // Clear BOTH buffers initially (important for double buffering!)
+    glClear(GL_COLOR_BUFFER_BIT);
+    SDL_GL_SwapWindow(window);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
     // Enable vsync
     SDL_GL_SetSwapInterval(1);
+    
+    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
   }
   else
 #endif
@@ -767,7 +785,7 @@ int st_video_setup(void)
     
     // Set logical size for consistent rendering
     SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
-    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+    //SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
 
   }
   

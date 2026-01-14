@@ -300,7 +300,7 @@ void title(void)
           if (event.type == SDL_QUIT)
             Menu::set_current(0);
         }
-
+      //clearscreen(0, 0, 0);
       /* Draw the background: */
       draw_demo(&session, frame_ratio);
       

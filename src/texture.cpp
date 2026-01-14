@@ -548,7 +548,7 @@ SurfaceOpenGL::draw(float x, float y, Uint8 alpha, bool update)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glColor4ub(alpha, alpha, alpha, alpha);
+  glColor4ub(255, 255, 255, alpha);  // White color, with alpha for transparency
 
   glBindTexture(GL_TEXTURE_2D, gl_texture);
 
@@ -612,7 +612,7 @@ SurfaceOpenGL::draw_part(float sx, float sy, float x, float y, float w_, float h
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glColor4ub(alpha, alpha, alpha, alpha);
+  glColor4ub(255, 255, 255, alpha);  // White color, with alpha for transparency
 
   glEnable(GL_TEXTURE_2D);
 
@@ -645,7 +645,7 @@ SurfaceOpenGL::draw_stretched(float x, float y, int sw, int sh, Uint8 alpha, boo
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glColor4ub(alpha, alpha, alpha, alpha);
+  glColor4ub(255, 255, 255, alpha);  // White color, with alpha for transparency
 
   glEnable(GL_TEXTURE_2D);
 
@@ -682,6 +682,11 @@ SurfaceSDL::SurfaceSDL(SDL_Surface* surf, int use_alpha)
   {
     std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
   }
+  else
+  {
+    // SET BLEND MODE - This is critical for proper alpha rendering
+    SDL_SetTextureBlendMode(sdl_texture, SDL_BLENDMODE_BLEND);
+  }
 }
 
 SurfaceSDL::SurfaceSDL(const std::string& file, int use_alpha)
@@ -696,6 +701,11 @@ SurfaceSDL::SurfaceSDL(const std::string& file, int use_alpha)
   {
     std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
   }
+  else
+  {
+    // SET BLEND MODE
+    SDL_SetTextureBlendMode(sdl_texture, SDL_BLENDMODE_BLEND);
+  }
 }
 
 SurfaceSDL::SurfaceSDL(const std::string& file, int x, int y, int w_, int h_, int use_alpha)
@@ -709,6 +719,11 @@ SurfaceSDL::SurfaceSDL(const std::string& file, int x, int y, int w_, int h_, in
   if (!sdl_texture)
   {
     std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
+  }
+  else
+  {
+    // SET BLEND MODE
+    SDL_SetTextureBlendMode(sdl_texture, SDL_BLENDMODE_BLEND);
   }
 }
 

@@ -49,7 +49,7 @@ void clearscreen(int r, int g, int b)
   if(use_gl)
     {
       glClearColor(r/256.0f, g/256.0f, b/256.0f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
   else
   {
