@@ -2,7 +2,7 @@ APP_NAME = supertux
 CXX = c++
 
 # SDL2 flags using pkg-config
-CXXFLAGS = -std=c++11 -Wall -O2 -g -O0 $(shell pkg-config --cflags sdl2 SDL2_image SDL2_mixer)
+CXXFLAGS = -std=c++11 -Wall -O2 $(shell pkg-config --cflags sdl2 SDL2_image SDL2_mixer)
 LDFLAGS  = $(shell pkg-config --libs sdl2 SDL2_image SDL2_mixer) -lz -framework OpenGL
 
 SRC_DIR = src

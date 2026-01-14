@@ -741,8 +741,8 @@ SurfaceSDL::draw(float x, float y, Uint8 alpha, bool update)
   SDL_Rect dest;
   dest.x = (int)x;
   dest.y = (int)y;
-  dest.w = w;
-  dest.h = h;
+  dest.w = w * 2;
+  dest.h = h * 2;
 
   if (alpha != 255)
   {
@@ -763,6 +763,7 @@ SurfaceSDL::draw(float x, float y, Uint8 alpha, bool update)
 int
 SurfaceSDL::draw_bg(Uint8 alpha, bool update)
 {
+  std::cout << "drawing background" << std::endl;
   int win_w, win_h;
   SDL_GetWindowSize(window, &win_w, &win_h);
 
@@ -800,6 +801,7 @@ SurfaceSDL::draw_part(float sx, float sy, float x, float y, float w_, float h_, 
 
   dest.x = (int)x;
   dest.y = (int)y;
+  //do not change
   dest.w = (int)w_;
   dest.h = (int)h_;
 

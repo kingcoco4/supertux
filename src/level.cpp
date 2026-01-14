@@ -28,6 +28,7 @@
 #include "screen.h"
 #include "level.h"
 #include "physic.h"
+#include <SDL2/SDL_image.h>
 #include "scene.h"
 #include "tile.h"
 #include "lispreader.h"
@@ -47,6 +48,29 @@ LevelSubset::~LevelSubset()
 {
   delete image;
 }
+
+
+static SDL_Surface* scale_surface(SDL_Surface* src, int w, int h)
+{
+  SDL_Surface* dst = SDL_CreateRGBSurface(
+    0,
+    w, h,
+    src->format->BitsPerPixel,
+    src->format->Rmask,
+    src->format->Gmask,
+    src->format->Bmask,
+    src->format->Amask
+  );
+
+  if (!dst)
+    return NULL;
+
+  SDL_Rect dstrect = { 0, 0, w, h };
+  SDL_BlitScaled(src, NULL, dst, &dstrect);
+
+  return dst;
+}
+
 
 void LevelSubset::create(const std::string& subset_name)
 {
@@ -671,7 +695,35 @@ Level::load_gfx()
       if(!faccessible(fname))
         snprintf(fname, 1024, "%s/images/background/%s", datadir.c_str(), bkgd_image.c_str());
       delete img_bkgd;
-      img_bkgd = new Surface(fname, IGNORE_ALPHA);
+      SDL_Surface* src = IMG_Load(fname);
+      if (!src)
+      {
+        fprintf(stderr, "Failed to load background %s: %s\n",
+                fname, IMG_GetError());
+        return;
+      }
+
+      // Scale to screen size once
+      SDL_Surface* scaled = SDL_CreateRGBSurface(
+        0,
+        SCREEN_W,
+        SCREEN_H,
+        src->format->BitsPerPixel,
+        src->format->Rmask,
+        src->format->Gmask,
+        src->format->Bmask,
+        src->format->Amask
+      );
+
+      SDL_Rect dstrect = { 0, 0, SCREEN_W, SCREEN_H };
+      SDL_BlitScaled(src, NULL, scaled, &dstrect);
+
+      SDL_FreeSurface(src);
+
+      // Create Surface from scaled image
+      img_bkgd = new Surface(scaled, IGNORE_ALPHA);
+      SDL_FreeSurface(scaled);
+
     }
   else
     {

@@ -744,12 +744,18 @@ int st_video_setup(void)
     SDL_GL_MakeCurrent(window, gl_context);
     
     // Setup OpenGL
-    glViewport(0, 0, SCREEN_W, SCREEN_H);
+    int drawable_w, drawable_h;
+    SDL_GL_GetDrawableSize(window, &drawable_w, &drawable_h);
+    //std::cout << "drawable w: " << drawable_w << std::endl << "drawable h: " << drawable_h << std::endl;
+    glViewport(0, 0, drawable_w, drawable_h);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, SCREEN_W, SCREEN_H, 0, -1, 1);
+    glOrtho(0, drawable_w, drawable_h, 0, -1, 1);
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
     
     // Disable depth test for 2D rendering
     glDisable(GL_DEPTH_TEST);
@@ -784,8 +790,9 @@ int st_video_setup(void)
     }
     
     // Set logical size for consistent rendering
-    SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
-    //SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+    //SDL_RenderSetLogicalSize(renderer, 320, 240);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
 
   }
   
