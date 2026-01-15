@@ -6,7 +6,7 @@
 	(show_fps   #f)
 
 	;; either "opengl" or "sdl"
-	(video      "sdl")
+	(video      "opengl")
 
 	;; joystick number (-1 means no joystick):
 	(joystick   -1)
