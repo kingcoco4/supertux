@@ -741,8 +741,8 @@ SurfaceSDL::draw(float x, float y, Uint8 alpha, bool update)
   SDL_Rect dest;
   dest.x = (int)x;
   dest.y = (int)y;
-  dest.w = w * 2;
-  dest.h = h * 2;
+  dest.w = w;
+  dest.h = h;
 
   if (alpha != 255)
   {
